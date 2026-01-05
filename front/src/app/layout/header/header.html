@@ -4,5 +4,12 @@
     <div class="header__content">
         <h1 class="header__title">Bienvenue sur Gilles de Chasles!</h1>
         <h2 class="header__subtitle">Poète autrement</h2>
+        <nav class="header__nav">
+            <a routerLink="/" routerLinkActive="active"  [routerLinkActiveOptions]="{ exact: true }">Accueil</a>
+            <a routerLink="/poemes" routerLinkActive="active">Poèmes</a>
+            <a routerLink="/reflexions" routerLinkActive="active">Réflexions</a>
+            <a routerLink="/ailleurs" routerLinkActive="active">Ailleurs</a>
+            <a routerLink="/vous" routerLinkActive="active">Vous</a>
+        </nav>
     </div>
 </header>
