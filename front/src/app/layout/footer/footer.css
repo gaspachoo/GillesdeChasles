@@ -1,3 +1,24 @@
-p {
+.footer {
+    padding: 2rem 1rem;
+    background-color: #f8f8f8;
+    color: #333;
     text-align: center;
+}
+
+.footer__title {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.footer__subtitle {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: normal;
+    color: #666;
+}
+
+.footer__quote {
+    font-size: 1.2rem;
+    font-style: italic;
+    margin: 0;
 }
