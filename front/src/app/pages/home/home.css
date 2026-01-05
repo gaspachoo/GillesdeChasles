@@ -30,13 +30,18 @@ h1 {
 }
 
 .column {
+    display: block;
+    text-decoration: none;
+    color: inherit;
     text-align: center;
     padding: 20px;
     transition: transform 0.3s ease;
+    border-radius: 10px;
 }
 
 .column:hover {
     transform: translateY(-5px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 .column img {
