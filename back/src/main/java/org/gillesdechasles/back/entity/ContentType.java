@@ -1,4 +1,4 @@
-package org.gillesdechasles.back.Entities;
+package org.gillesdechasles.back.entity;
 
 public enum ContentType {
     POEME,

@@ -1,11 +1,14 @@
-package org.gillesdechasles.back.Entities;
+package org.gillesdechasles.back.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,24 +16,21 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "images")
+@Table(name = "tags")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Image {
+public class Tag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 512, nullable = false)
-    private String url;
+    @Column(length = 100, nullable = false, unique = true)
+    private String name;
 
-    @Column()
-    private String caption;
-
-    @Column(name = "is_ai", nullable = false)
     @Builder.Default
-    private boolean aiGenerated = false;
+    @ManyToMany(mappedBy = "tags")
+    private Set<Content> contents = new HashSet<>();
 }

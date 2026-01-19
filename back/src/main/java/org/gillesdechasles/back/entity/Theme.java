@@ -1,4 +1,4 @@
-package org.gillesdechasles.back.Entities;
+package org.gillesdechasles.back.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

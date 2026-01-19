@@ -1,4 +1,4 @@
-package org.gillesdechasles.back.Entities;
+package org.gillesdechasles.back.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,13 +13,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "videos")
+@Table(name = "images")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Video {
+public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,5 +28,9 @@ public class Video {
     private String url;
 
     @Column()
-    private String title;
+    private String caption;
+
+    @Column(name = "is_ai", nullable = false)
+    @Builder.Default
+    private boolean aiGenerated = false;
 }
