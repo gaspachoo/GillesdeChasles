@@ -32,6 +32,15 @@ public class ContentController {
         }
     }
 
+    @GetMapping("{id}")
+    public ContentDto getContentById(@PathVariable int id) {
+        try {
+            return contentService.getContentById(id);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid content type");
+        }
+    }
+
 
 
 }

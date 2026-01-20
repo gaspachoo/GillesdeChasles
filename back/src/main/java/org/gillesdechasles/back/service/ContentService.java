@@ -56,5 +56,29 @@ public class ContentService {
         );
     }
 
+    public ContentDto getContentById(int id) {
+        Content content =  contentRepo.findById(id).orElse(null);
+        if (content != null) {
+            return new ContentDto(
+                content.getId(),
+                content.getTitle(),
+                content.getContentType(),
+                content.getContentText(),
+                content.getPublishedAt(),
+                content.getImage(),
+                content.getVideo(),
+                content.getThemes(),
+                content.getTags(),
+                content.getRecommendations(),
+                content.getRecommendedBy()
+        );
+        } else {
+            return new ContentDto(null, null, null, null, null, null, null,
+                    Collections.emptySet(), Collections.emptySet(),
+                    Collections.emptySet(), Collections.emptySet());
+        }
+
+    }
+
 
 }
