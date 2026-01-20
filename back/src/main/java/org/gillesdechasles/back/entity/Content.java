@@ -84,4 +84,10 @@ public class Content {
     @Builder.Default
     @OneToMany(mappedBy = "target", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Lien> recommendedBy = new HashSet<>();
+
+    public Content(String title, ContentType contentType){
+        this.title = title;
+        this.contentType = contentType;
+        this.publishedAt = LocalDateTime.now();
+    }
 }

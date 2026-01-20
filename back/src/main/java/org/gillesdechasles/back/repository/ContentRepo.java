@@ -9,5 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface ContentRepo extends CrudRepository<Content, Integer> {
-    public Optional<Content> findTitlesByContentType(ContentType contentType);
+    Optional<Content> findTitlesByContentType(ContentType contentType);
 }

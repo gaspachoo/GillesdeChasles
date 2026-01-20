@@ -1,0 +1,22 @@
+info:
+  name: publish a content
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{base_url}}/content"
+  body:
+    type: json
+    data: |-
+      {
+        "title" : "Essai numéro 2",
+        "type" : "poeme"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
