@@ -1,1 +1,60 @@
-<p>poemes works!</p>
+<div class="poemes-container">
+  <h1>Poèmes</h1>
+
+  <div class="intro-text">
+    <p>Explorez ma collection de poèmes, un voyage à travers les émotions et les paysages intérieurs.</p>
+  </div>
+
+  <!-- État de chargement -->
+  @if (isLoading) {
+    <div class="loading-state">
+      <p>Chargement des poèmes...</p>
+    </div>
+  }
+
+  <!-- Affichage des erreurs -->
+  @if (error) {
+    <div class="error-state">
+      <p>{{ error }}</p>
+    </div>
+  }
+
+  <!-- Liste des poèmes -->
+  @if (!isLoading && !error) {
+    <div class="poemes-list">
+      @for (poeme of poemes; track poeme.id) {
+        <div class="poeme-item">
+          <div class="poeme-header" (click)="togglePoeme(poeme)">
+            <h3 class="poeme-title">{{ poeme.title }}</h3>
+            <button class="expand-button" [class.expanded]="poeme.isExpanded" aria-label="Déplier le poème">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+          </div>
+
+          @if (poeme.isExpanded) {
+            <div class="poeme-content">
+              @if (poeme.isLoading) {
+                <div class="content-loading">
+                  <p>Chargement du contenu...</p>
+                </div>
+              }
+              @if (!poeme.isLoading && poeme.content) {
+                <div class="content-text">
+                  <p [innerHTML]="poeme.content"></p>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (poemes.length === 0) {
+        <div class="empty-state">
+          <p>Aucun poème disponible pour le moment.</p>
+        </div>
+      }
+    </div>
+  }
+</div>
