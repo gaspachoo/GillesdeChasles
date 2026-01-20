@@ -6,6 +6,7 @@ import org.gillesdechasles.back.entity.Content;
 import org.gillesdechasles.back.entity.ContentType;
 import org.gillesdechasles.back.repository.ContentRepo;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 public class ContentService {
     private final ContentRepo contentRepo;
 
+    @Transactional(readOnly = true)
     public List<ContentDto> getAllTitlesByContent(String contentType) {
         ContentType type = ContentType.valueOf(contentType.toUpperCase());
         List<Content> contents = contentRepo.findByContentType(type);
@@ -58,6 +60,7 @@ public class ContentService {
         );
     }
 
+    @Transactional(readOnly = true)
     public ContentDto getContentById(int id) {
         Content content =  contentRepo.findById(id).orElse(null);
         if (content != null) {
@@ -80,6 +83,58 @@ public class ContentService {
                     Collections.emptySet(), Collections.emptySet());
         }
 
+    }
+
+    @Transactional
+    public ContentDto updateContent(int id, ContentDto contentDto) {
+        Content content = contentRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Content not found"));
+
+        if (contentDto.getTitle() != null) {
+            content.setTitle(contentDto.getTitle());
+        }
+        if (contentDto.getType() != null) {
+            content.setContentType(contentDto.getType());
+        }
+        if (contentDto.getContentText() != null) {
+            content.setContentText(contentDto.getContentText());
+        }
+        if (contentDto.getPublishedAt() != null) {
+            content.setPublishedAt(contentDto.getPublishedAt());
+        }
+        if (contentDto.getImage() != null) {
+            content.setImage(contentDto.getImage());
+        }
+        if (contentDto.getVideo() != null) {
+            content.setVideo(contentDto.getVideo());
+        }
+        if (contentDto.getThemes() != null) {
+            content.setThemes(contentDto.getThemes());
+        }
+        if (contentDto.getTags() != null) {
+            content.setTags(contentDto.getTags());
+        }
+        if (contentDto.getRecommendations() != null) {
+            content.setRecommendations(contentDto.getRecommendations());
+        }
+        if (contentDto.getRecommendedBy() != null) {
+            content.setRecommendedBy(contentDto.getRecommendedBy());
+        }
+
+        Content saved = contentRepo.save(content);
+        return new ContentDto(
+                saved.getId(),
+                saved.getTitle(),
+                saved.getContentType(),
+                saved.getContentText(),
+                saved.getPublishedAt(),
+                saved.getImage(),
+                saved.getVideo(),
+                saved.getThemes(),
+                saved.getTags(),
+                saved.getRecommendations(),
+                saved.getRecommendedBy()
+        );
     }
 
 

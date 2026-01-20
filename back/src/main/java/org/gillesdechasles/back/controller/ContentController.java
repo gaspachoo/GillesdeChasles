@@ -43,6 +43,18 @@ public class ContentController {
         }
     }
 
+    @PatchMapping("{id}")
+    public ContentDto updateContent(@PathVariable int id, @RequestBody ContentDto contentDto) {
+        try {
+            return contentService.updateContent(id, contentDto);
+        } catch (IllegalArgumentException e) {
+            if ("Content not found".equals(e.getMessage())) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+            }
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
 
 
 }
