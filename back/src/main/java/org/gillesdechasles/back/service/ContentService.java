@@ -8,30 +8,32 @@ import org.gillesdechasles.back.repository.ContentRepo;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service @AllArgsConstructor
 public class ContentService {
     private final ContentRepo contentRepo;
 
-    public ContentDto getAllTitlesByContent(String contentType) {
+    public List<ContentDto> getAllTitlesByContent(String contentType) {
         ContentType type = ContentType.valueOf(contentType.toUpperCase());
-        return contentRepo.findTitlesByContentType(type)
+        List<Content> contents = contentRepo.findByContentType(type);
+
+        return contents.stream()
                 .map(content -> new ContentDto(
                         content.getId(),
                         content.getTitle(),
                         content.getContentType(),
-                        content.getContentText(),
+                        null,  // Ne pas retourner le contenu complet pour les titres
                         content.getPublishedAt(),
-                        content.getImage(),
-                        content.getVideo(),
-                        content.getThemes(),
-                        content.getTags(),
-                        content.getRecommendations(),
-                        content.getRecommendedBy()
+                        null,
+                        null,
+                        Collections.emptySet(),
+                        Collections.emptySet(),
+                        Collections.emptySet(),
+                        Collections.emptySet()
                 ))
-                .orElse(new ContentDto(null, null, null, null, null, null, null,
-                        Collections.emptySet(), Collections.emptySet(),
-                        Collections.emptySet(), Collections.emptySet()));
+                .collect(Collectors.toList());
     }
 
     public ContentDto addContent(ContentDto contentDto) {

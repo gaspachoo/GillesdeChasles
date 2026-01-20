@@ -8,13 +8,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @AllArgsConstructor @RestController
 @RequestMapping("api/content")
 public class ContentController {
     private ContentService contentService;
 
     @GetMapping("titles")
-    public ContentDto getContentTitlesByContentType(@RequestParam(name = "type") String contentType) {
+    public List<ContentDto> getContentTitlesByContentType(@RequestParam(name = "type") String contentType) {
         try {
             return contentService.getAllTitlesByContent(contentType);
         } catch (IllegalArgumentException e) {
