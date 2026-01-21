@@ -36,11 +36,13 @@ export class Poemes implements OnInit {
           isExpanded: false
         }));
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Erreur lors du chargement des poèmes:', err);
         this.error = 'Impossible de charger les poèmes. Veuillez réessayer plus tard.';
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
