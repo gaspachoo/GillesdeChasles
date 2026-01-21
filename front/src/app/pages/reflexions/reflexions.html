@@ -1,1 +1,60 @@
-<p>reflexions works!</p>
+<div class="reflexions-container">
+  <h1>Réflexions</h1>
+
+  <div class="intro-text">
+    <p>Explorez mes réflexions, des pensées et des considérations sur divers sujets et thèmes.</p>
+  </div>
+
+  <!-- État de chargement -->
+  @if (isLoading) {
+    <div class="loading-state">
+      <p>Chargement des réflexions...</p>
+    </div>
+  }
+
+  <!-- Affichage des erreurs -->
+  @if (error) {
+    <div class="error-state">
+      <p>{{ error }}</p>
+    </div>
+  }
+
+  <!-- Liste des réflexions -->
+  @if (!isLoading && !error) {
+    <div class="reflexions-list">
+      @for (reflexion of reflexions; track reflexion.id) {
+        <div class="reflexion-item">
+          <div class="reflexion-header" (click)="toggleReflexion(reflexion)">
+            <h3 class="reflexion-title">{{ reflexion.title }}</h3>
+            <button class="expand-button" [class.expanded]="reflexion.isExpanded" aria-label="Déplier la réflexion">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+          </div>
+
+          @if (reflexion.isExpanded) {
+            <div class="reflexion-content">
+              @if (reflexion.isLoading) {
+                <div class="content-loading">
+                  <p>Chargement du contenu...</p>
+                </div>
+              }
+              @if (!reflexion.isLoading && reflexion.content) {
+                <div class="content-text">
+                  <p [innerHTML]="reflexion.content"></p>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (reflexions.length === 0) {
+        <div class="empty-state">
+          <p>Aucune réflexion disponible pour le moment.</p>
+        </div>
+      }
+    </div>
+  }
+</div>
