@@ -4,8 +4,17 @@ info:
   seq: 4
 
 http:
-  method: GET
+  method: PATCH
   url: "{{base_url}}/content/{{id}}"
+  headers:
+    Authorization: "Bearer {{token}}"
+  body:
+    type: json
+    data: |-
+      {
+        "title": "Updated Title",
+        "contentText": "Updated content"
+      }
   auth: inherit
 
 runtime:
