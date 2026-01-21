@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ContentService, ContentDto } from '../../services/content.service';
 
@@ -21,7 +21,7 @@ export class Poemes implements OnInit {
   isLoading = true;
   error: string | null = null;
 
-  constructor(private contentService: ContentService) {}
+  constructor(private contentService: ContentService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.loadPoemes();
@@ -48,20 +48,20 @@ export class Poemes implements OnInit {
   togglePoeme(poeme: PoemeItem) {
     poeme.isExpanded = !poeme.isExpanded;
 
-    // Charger le contenu si nécessaire
     if (poeme.isExpanded && !poeme.content) {
       poeme.isLoading = true;
       this.contentService.getContentById(poeme.id).subscribe({
         next: (data: ContentDto) => {
           poeme.content = data.contentText;
           poeme.isLoading = false;
-          console.log('Poème chargé, isLoading:', poeme.isLoading);
+          this.cdr.markForCheck();
           console.log(poeme.content);
         },
         error: (err) => {
           console.error('Erreur lors du chargement du poème:', err);
           poeme.isLoading = false;
           poeme.isExpanded = false;
+          this.cdr.markForCheck();
         }
       });
     }
