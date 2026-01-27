@@ -1,0 +1,23 @@
+# Backend
+back/build
+back/.gradle
+back/gradle
+back/gradlew
+back/gradlew.bat
+back/.idea
+back/*.iml
+
+# Frontend
+front/node_modules
+front/dist
+front/.angular
+front/.idea
+front/*.iml
+
+# General
+.git
+.gitignore
+**/.DS_Store
+**/node_modules
+**/.env
+compose.yml

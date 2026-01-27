@@ -1,0 +1,65 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: gillesdechasles-db
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: temppasswd
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - gillesdechasles-network
+
+  # Backend Spring Boot API
+  backend:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    container_name: gillesdechasles-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: temppasswd
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      JWT_SECRET: mySecretKeyThatIsLongEnoughForHS256AlgorithmToWork
+      JWT_EXPIRATION: 86400000
+      JAVA_TOOL_OPTIONS: "-XX:+UseG1GC -XX:MaxRAMPercentage=75.0"
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - gillesdechasles-network
+    restart: unless-stopped
+
+  # Frontend Angular Application
+  frontend:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    container_name: gillesdechasles-frontend
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
+    networks:
+      - gillesdechasles-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  gillesdechasles-network:
+    driver: bridge
