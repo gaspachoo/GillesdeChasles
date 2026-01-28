@@ -7,8 +7,6 @@ services:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: temppasswd
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -21,6 +19,7 @@ services:
 
   # Backend Spring Boot API
   backend:
+    image: gaspacho35/gillesdechasles-back:latest
     build:
       context: ./back
       dockerfile: Dockerfile
@@ -34,8 +33,6 @@ services:
       JWT_SECRET: mySecretKeyThatIsLongEnoughForHS256AlgorithmToWork
       JWT_EXPIRATION: 86400000
       JAVA_TOOL_OPTIONS: "-XX:+UseG1GC -XX:MaxRAMPercentage=75.0"
-    ports:
-      - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -45,6 +42,7 @@ services:
 
   # Frontend Angular Application
   frontend:
+    image: gaspacho35/gillesdechasles-front:latest
     build:
       context: ./front
       dockerfile: Dockerfile

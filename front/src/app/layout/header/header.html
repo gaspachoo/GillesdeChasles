@@ -11,5 +11,59 @@
             <a routerLink="/ailleurs" routerLinkActive="active">Ailleurs</a>
             <a routerLink="/vous" routerLinkActive="active">Vous</a>
         </nav>
+
+    </div>
+
+    <button
+        *ngIf="!isAuthenticated"
+        class="header__admin-btn"
+        (click)="openLoginModal()">
+        Admin
+    </button>
+
+    <button
+        *ngIf="isAuthenticated"
+        class="header__admin-btn header__admin-btn--authenticated"
+        (click)="logout()"
+        [disabled]="isLoading">
+        {{ isLoading ? 'Logging out...' : 'Logout' }}
+    </button>
+
+    <!-- Login Modal -->
+    <div class="login-modal" *ngIf="showLoginModal">
+        <div class="login-modal__overlay" (click)="closeLoginModal()"></div>
+        <div class="login-modal__content" (click)="$event.stopPropagation()">
+            <button class="login-modal__close" (click)="closeLoginModal()">×</button>
+            <h2>Admin Login</h2>
+            <form (ngSubmit)="login()" #loginForm="ngForm" novalidate>
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        [(ngModel)]="username"
+                        placeholder="Enter username"
+                        required
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        [(ngModel)]="password"
+                        placeholder="Enter admin password"
+                        required
+                    >
+                </div>
+                <div *ngIf="loginSuccess" class="success-message">{{ loginSuccess }}</div>
+                <div *ngIf="loginError" class="error-message">{{ loginError }}</div>
+                <button type="submit" class="login-modal__submit" [disabled]="isLoading">
+                    {{ isLoading ? 'Logging in...' : 'Login' }}
+                </button>
+            </form>
+        </div>
     </div>
 </header>
