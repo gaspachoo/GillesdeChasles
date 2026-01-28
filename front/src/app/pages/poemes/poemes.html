@@ -1,5 +1,16 @@
 <div class="poemes-container">
-  <h1>Poèmes</h1>
+  <div class="page-header">
+    <h1>Poèmes</h1>
+    @if (isAuthenticated) {
+      <button class="btn-add" (click)="openCreateForm()" aria-label="Ajouter un poème">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Ajouter
+      </button>
+    }
+  </div>
 
   <div class="intro-text">
     <p>Explorez ma collection de poèmes, un voyage à travers les émotions et les paysages intérieurs.</p>
@@ -26,11 +37,22 @@
         <div class="poeme-item">
           <div class="poeme-header" (click)="togglePoeme(poeme)">
             <h3 class="poeme-title">{{ poeme.title }}</h3>
-            <button class="expand-button" [class.expanded]="poeme.isExpanded" aria-label="Déplier le poème">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </button>
+            <div class="poeme-actions">
+              @if (isAuthenticated) {
+                <button class="btn-edit" (click)="openEditForm(poeme.id); $event.stopPropagation()" aria-label="Éditer le poème">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                  Éditer
+                </button>
+              }
+              <button class="expand-button" [class.expanded]="poeme.isExpanded" aria-label="Déplier le poème">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+            </div>
           </div>
 
           @if (poeme.isExpanded) {
@@ -56,5 +78,17 @@
         </div>
       }
     </div>
+  }
+
+  <!-- Formulaire de contenu -->
+  @if (showForm) {
+    <app-content-form
+      [contentType]="'poeme'"
+      [existingContent]="editingPoeme"
+      [isSubmitting]="formSubmitting"
+      (onSubmit)="onFormSubmit($event)"
+      (onCancel)="onFormCancel()"
+      (onDelete)="onDelete($event)"
+    ></app-content-form>
   }
 </div>

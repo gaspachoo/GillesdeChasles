@@ -1,0 +1,75 @@
+<div class="content-form-container">
+  <div class="form-overlay" (click)="cancelForm()"></div>
+  <div class="form-modal">
+    <div class="form-header">
+      <h2>{{ existingContent ? 'Modifier' : 'Créer' }} un {{ contentType === 'poeme' ? 'poème' : 'réflexion' }}</h2>
+      <button class="close-button" (click)="cancelForm()">×</button>
+    </div>
+
+    <form (ngSubmit)="submitForm()" class="form-content">
+      <div class="form-group">
+        <label for="title">Titre *</label>
+        <input
+          type="text"
+          id="title"
+          [(ngModel)]="title"
+          name="title"
+          placeholder="Entrez le titre"
+          required
+          [disabled]="isSubmitting"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="contentText">Contenu *</label>
+        <textarea
+          id="contentText"
+          [(ngModel)]="contentText"
+          name="contentText"
+          placeholder="Entrez le contenu"
+          rows="10"
+          required
+          [disabled]="isSubmitting"
+        ></textarea>
+      </div>
+
+      @if (errorMessage) {
+        <div class="error-message">{{ errorMessage }}</div>
+      }
+
+      <div class="form-actions">
+        @if (existingContent) {
+          <button type="button" class="btn-delete" (click)="showDeleteConfirmation()" [disabled]="isSubmitting">
+            Supprimer
+          </button>
+        }
+        <div class="right-actions">
+          <button type="button" class="btn-cancel" (click)="cancelForm()" [disabled]="isSubmitting">
+            Annuler
+          </button>
+          <button type="submit" class="btn-submit" [disabled]="isSubmitting">
+            {{ isSubmitting ? 'Sauvegarde...' : (existingContent ? 'Mettre à jour' : 'Créer') }}
+          </button>
+        </div>
+      </div>
+    </form>
+
+    @if (showDeleteConfirm) {
+      <div class="delete-confirmation">
+        <div class="confirmation-content">
+          <h3>Confirmer la suppression</h3>
+          <p>Êtes-vous sûr de vouloir supprimer ce {{ contentType === 'poeme' ? 'poème' : 'réflexion' }} ?</p>
+          <p class="warning">Cette action est irréversible.</p>
+          <div class="confirmation-actions">
+            <button type="button" class="btn-cancel" (click)="cancelDelete()">
+              Annuler
+            </button>
+            <button type="button" class="btn-delete-confirm" (click)="confirmDelete()">
+              Supprimer définitivement
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

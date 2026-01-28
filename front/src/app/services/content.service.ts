@@ -32,4 +32,16 @@ export class ContentService {
   getContentById(id: number): Observable<ContentDto> {
     return this.http.get<ContentDto>(`${this.apiUrl}/content/${id}`);
   }
+
+  createContent(contentDto: ContentDto): Observable<ContentDto> {
+    return this.http.post<ContentDto>(`${this.apiUrl}/content`, contentDto);
+  }
+
+  updateContent(id: number, contentDto: ContentDto): Observable<ContentDto> {
+    return this.http.patch<ContentDto>(`${this.apiUrl}/content/${id}`, contentDto);
+  }
+
+  deleteContent(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/content/${id}`);
+  }
 }
