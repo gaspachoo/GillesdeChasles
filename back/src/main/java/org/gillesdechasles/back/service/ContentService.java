@@ -43,6 +43,7 @@ public class ContentService {
                 contentDto.getTitle(),
                 contentDto.getType()
         );
+        content.setContentText(contentDto.getContentText());
         Content savedContent = contentRepo.save(content);
 
         return new ContentDto(
@@ -114,11 +115,14 @@ public class ContentService {
         if (contentDto.getTags() != null) {
             content.setTags(contentDto.getTags());
         }
+        // For collections with orphanRemoval=true, we must clear and add instead of replacing
         if (contentDto.getRecommendations() != null) {
-            content.setRecommendations(contentDto.getRecommendations());
+            content.getRecommendations().clear();
+            content.getRecommendations().addAll(contentDto.getRecommendations());
         }
         if (contentDto.getRecommendedBy() != null) {
-            content.setRecommendedBy(contentDto.getRecommendedBy());
+            content.getRecommendedBy().clear();
+            content.getRecommendedBy().addAll(contentDto.getRecommendedBy());
         }
 
         Content saved = contentRepo.save(content);
@@ -135,6 +139,13 @@ public class ContentService {
                 saved.getRecommendations(),
                 saved.getRecommendedBy()
         );
+    }
+
+    @Transactional
+    public void deleteContent(int id) {
+        Content content = contentRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Content not found"));
+        contentRepo.delete(content);
     }
 
 

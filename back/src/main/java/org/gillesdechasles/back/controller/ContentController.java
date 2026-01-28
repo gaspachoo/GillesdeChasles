@@ -58,6 +58,19 @@ public class ContentController {
         }
     }
 
+    @DeleteMapping("{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> deleteContent(@PathVariable int id) {
+        try {
+            contentService.deleteContent(id);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            if ("Content not found".equals(e.getMessage())) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+            }
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
 
 
 }
