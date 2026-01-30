@@ -102,6 +102,10 @@ cd back
 ./gradlew test       # Lancer les tests
 ```
 
+## Production
+
+Website is available at:
+https://gillesdechasles.duckdns.org
 
 ## 🔧 Configuration
 

@@ -19,7 +19,6 @@ services:
 
   # Backend Spring Boot API
   backend:
-    image: gaspacho35/gillesdechasles-back:latest
     build:
       context: ./back
       dockerfile: Dockerfile
@@ -42,7 +41,6 @@ services:
 
   # Frontend Angular Application
   frontend:
-    image: gaspacho35/gillesdechasles-front:latest
     build:
       context: ./front
       dockerfile: Dockerfile
