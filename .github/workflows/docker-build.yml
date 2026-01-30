@@ -1,0 +1,61 @@
+name: Docker Build ARM64
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  REGISTRY: ghcr.io
+  # On récupère le nom en minuscule pour éviter les erreurs de tag
+  IMAGE_OWNER: ${{ github.repository_owner }}
+
+jobs:
+  build-and-push-arm64:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 1. Configuration de QEMU (indispensable pour builder du ARM sur du x86)
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      # 2. Configuration de Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 3. Connexion au registre (GHCR)
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 4. Build & Push du BACKEND
+      - name: Build and push Backend (ARM64)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./back
+          file: ./back/Dockerfile
+          platforms: linux/arm64  # <--- C'est ici qu'on force l'ARM64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-back:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-back:${{ github.sha }}
+
+      # 5. Build & Push du FRONTEND
+      - name: Build and push Frontend (ARM64)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./front
+          file: ./front/Dockerfile
+          platforms: linux/arm64  # <--- C'est ici qu'on force l'ARM64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-front:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-front:${{ github.sha }}
