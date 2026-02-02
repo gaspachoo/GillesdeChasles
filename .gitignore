@@ -1,2 +1,8 @@
 .idea/
 .vscode/
+
+# Environment variables - DO NOT COMMIT
+.env
+.env.local
+.env.*.local
+

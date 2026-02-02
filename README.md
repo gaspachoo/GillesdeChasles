@@ -17,18 +17,36 @@ Application web fullstack pour afficher et gérer des poèmes, réflexions et au
 - PostgreSQL 15+
 - Gradle (inclus via wrapper)
 
-### 1. Démarrer PostgreSQL
+### 1. Configurer les variables d'environnement
+
+```bash
+# Copier le fichier d'exemple
+cp .env.example .env
+
+### 2. Démarrer avec Docker Compose
+
+```bash
+# Démarrage simple (développement)
+docker-compose up -d
+
+# Arrêter les services
+docker-compose down
+```
+
+### OU Démarrage local
+
+#### Démarrer PostgreSQL
 
 Assurez-vous que PostgreSQL est lancé avec la configuration suivante :
 - Base de données : `postgres`
 - Utilisateur : `postgres`
-- Mot de passe : `temppasswd`
+- Mot de passe : `temppasswd` (ou celle dans `.env`)
 - Port : `5432`
 
 **Note** : Vous n'avez pas besoin de créer les tables manuellement ! 
 Spring Boot avec `spring.jpa.hibernate.ddl-auto=update` crée automatiquement toutes les tables au premier démarrage.
 
-### 2. Démarrer le backend
+#### Démarrer le backend
 
 ```bash
 cd back
@@ -37,10 +55,11 @@ cd back
 
 Le serveur démarre sur `http://localhost:8080`
 
-### 3. Démarrer le frontend
+#### Démarrer le frontend
 
 ```bash
 cd front
+npm install
 ng serve
 ```
 
@@ -102,19 +121,44 @@ cd back
 ./gradlew test       # Lancer les tests
 ```
 
-## Production
+## 🚀 Production
 
 Website is available at:
 https://gillesdechasles.duckdns.org
 
+**Pour le déploiement en production**, utiliser les github secrets.
+
 ## 🔧 Configuration
+
+### Variables d'Environnement
+
+Les variables d'environnement sont définies dans le fichier `.env` :
+
+```env
+# Admin Credentials
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=admin123
+
+# JWT Configuration
+JWT_SECRET=mySecretKeyThatIsLongEnoughForHS256AlgorithmToWork
+JWT_EXPIRATION=86400000
+
+# Database
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/postgres
+SPRING_DATASOURCE_USERNAME=postgres
+SPRING_DATASOURCE_PASSWORD=temppasswd
+```
+
+Voir `.env.example` pour la liste complète.
 
 ### Backend (application.properties)
 
+Les propriétés de Spring Boot lisent les variables d'environnement avec des valeurs par défaut :
+
 ```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/postgres
-spring.datasource.username=postgres
-spring.datasource.password=temppasswd
+spring.datasource.url=${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres}
+spring.datasource.username=${SPRING_DATASOURCE_USERNAME:postgres}
+spring.datasource.password=${SPRING_DATASOURCE_PASSWORD:temppasswd}
 spring.jpa.hibernate.ddl-auto=update
 ```
 
@@ -136,3 +180,4 @@ export const environment = {
 ## 📄 License
 
 Tous droits réservés.
+
