@@ -3,33 +3,54 @@ name: Docker Build ARM64
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 env:
   REGISTRY: ghcr.io
   IMAGE_OWNER: ${{ github.repository_owner }}
-  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-  ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
 
 jobs:
-  build-and-push-arm64:
+  # ─── PR CHECK : build only, no push ───────────────────────────────────────
+  build-check:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [back, front]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build ${{ matrix.service }} (ARM64 — no push)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./${{ matrix.service }}
+          file: ./${{ matrix.service }}/Dockerfile
+          platforms: linux/arm64
+          push: false  # <--- vérification seule
+
+  # ─── MAIN PUSH : build + push en parallèle ────────────────────────────────
+  build-and-push-back:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # 1. Configuration de QEMU (indispensable pour builder du ARM sur du x86)
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
-      # 2. Configuration de Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 3. Connexion au registre (GHCR)
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
@@ -37,34 +58,53 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 4. Build & Push du BACKEND
       - name: Build and push Backend (ARM64)
         uses: docker/build-push-action@v5
         with:
           context: ./back
           file: ./back/Dockerfile
-          platforms: linux/arm64  # <--- C'est ici qu'on force l'ARM64
+          platforms: linux/arm64
           push: true
           build-args: |
-            POSTGRES_USER:         ${{ env.POSTGRES_USER }}
-            SPRING_DATASOURCE_URL: ${{env.SPRING_DATASOURCE_URL }}
-            JWT_EXPIRATION:        ${{ env.JWT_EXPIRATION }}
-            POSTGRES_PASSWORD:     ${{ secrets.POSTGRES_PASSWORD }}
-            JWT_SECRET:            ${{ secrets.JWT_SECRET }}
-            ADMIN_USERNAME:        ${{ secrets.ADMIN_USERNAME }}
-            ADMIN_PASSWORD:        ${{ secrets.ADMIN_PASSWORD }}
-
+            POSTGRES_USER=${{ env.POSTGRES_USER }}
+            SPRING_DATASOURCE_URL=${{ env.SPRING_DATASOURCE_URL }}
+            JWT_EXPIRATION=${{ env.JWT_EXPIRATION }}
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            ADMIN_USERNAME=${{ secrets.ADMIN_USERNAME }}
+            ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-back:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-back:${{ github.sha }}
 
-      # 5. Build & Push du FRONTEND
+  build-and-push-front:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push Frontend (ARM64)
         uses: docker/build-push-action@v5
         with:
           context: ./front
           file: ./front/Dockerfile
-          platforms: linux/arm64  # <--- C'est ici qu'on force l'ARM64
+          platforms: linux/arm64
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-front:latest
