@@ -1,0 +1,14 @@
+node_modules/
+dist/
+
+# IDE
+*.iml
+.idea/
+
+# Git
+.gitignore
+.gitattributes
+
+# Divers
+README.md
+Dockerfile

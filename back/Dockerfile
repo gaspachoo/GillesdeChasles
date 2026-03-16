@@ -1,21 +1,20 @@
 # Stage 1: Build
-FROM gradle:latest AS builder
+FROM eclipse-temurin:25-jdk-alpine AS builder
 WORKDIR /app
 COPY . .
-RUN gradle build -x test
+RUN chmod +x gradlew && ./gradlew build -x test --no-daemon
 
 # Stage 2: Runtime
-FROM mcr.microsoft.com/openjdk/jdk:25-distroless
+FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
 
-# Copy the built JAR from the builder stage
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring
+
 COPY --from=builder /app/build/libs/back-*.jar app.jar
 
-# Expose the port your Spring Boot application runs on
 EXPOSE 8080
 
-# Set environment variables for Spring
-ENV JAVA_TOOL_OPTIONS="-XX:+UseG1GC -XX:MaxRAMPercentage=75.0"
+ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75.0"
 
-# Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
