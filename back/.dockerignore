@@ -5,12 +5,25 @@ build/
 # IDE
 *.iml
 .idea/
+.vscode/
+*.class
+.DS_Store
 
 # Git
 .gitignore
 .gitattributes
+.git/
+
+# CI/CD
+.github/
 
 # Divers
 __bruno__/
 README.md
 Dockerfile
+
+# Local env
+.env
+.env.local
+*.log
+*.swp

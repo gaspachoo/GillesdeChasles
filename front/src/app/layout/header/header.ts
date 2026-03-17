@@ -26,6 +26,7 @@ export class Header implements OnInit, OnDestroy {
   constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
+    this.authService.checkAuthStatus();
     this.authSubscription = this.authService.isAuthenticated$.subscribe(
       (isAuth) => {
         console.log('isAuthenticated updated:', isAuth);
@@ -114,14 +115,10 @@ export class Header implements OnInit, OnDestroy {
     this.authService.logout().subscribe({
       next: () => {
         console.log('Logged out successfully');
-        // Important: réinitialiser isLoading AVANT de changer l'état d'authentification
         this.isLoading = false;
-        // Maintenant on peut changer l'état d'authentification
-        this.authService.setAuthenticationState(false);
       },
       error: (error) => {
         this.isLoading = false;
-        this.authService.setAuthenticationState(false);
         console.error('Logout error:', error);
       }
     });

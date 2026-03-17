@@ -5,6 +5,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.gillesdechasles.back.service.JWTService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,15 +15,22 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.time.Duration;
 
 public class JsonAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final JWTService jwtService;
 
-    public JsonAuthenticationFilter(AuthenticationManager authManager, JWTService jwtService) {
+    private final long jwtExpiration;
+
+    private final boolean cookieSecure;
+
+    public JsonAuthenticationFilter(AuthenticationManager authManager, JWTService jwtService, long  jwtExpiration, boolean cookieSecure) {
         super(authManager);
         this.jwtService = jwtService;
+        this.jwtExpiration = jwtExpiration;
+        this.cookieSecure = cookieSecure;
         setFilterProcessesUrl("/login");
     }
 
@@ -41,8 +50,17 @@ public class JsonAuthenticationFilter extends UsernamePasswordAuthenticationFilt
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                             FilterChain chain, Authentication authResult) throws IOException {
         String token = jwtService.generateToken(authResult);
-        response.setContentType("application/json");
-        response.getWriter().write("{\"token\":\"" + token + "\"}");
+
+        ResponseCookie cookie = ResponseCookie.from("ACCESS_TOKEN", token)
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(Duration.ofSeconds(jwtExpiration))
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 }
 

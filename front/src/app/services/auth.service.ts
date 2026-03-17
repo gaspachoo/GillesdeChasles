@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ConfigService } from '../core/config.service';
 
 @Injectable({
@@ -13,21 +13,18 @@ export class AuthService {
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
   constructor(private http: HttpClient, private config: ConfigService) {
-    // Ne pas vérifier le statut au démarrage pour éviter les erreurs 502
-    // Le statut sera vérifié après le premier login
   }
 
   login(username: string, password: string): Observable<any> {
     return this.http.post(`${this.config.apiUrl}/login`, { username, password }).pipe(
       tap(() => {
-        // Token is automatically stored in httpOnly cookie by the backend
         console.log('Login successful');
         this.isAuthenticatedSubject.next(true);
       }),
       catchError((error: HttpErrorResponse) => {
         console.error('Login failed:', error);
         this.isAuthenticatedSubject.next(false);
-        throw error;
+        return throwError(() => error);
       })
     );
   }
@@ -36,11 +33,12 @@ export class AuthService {
     return this.http.post(`${this.config.apiUrl}/logout`, {}).pipe(
       tap(() => {
         console.log('Logout successful');
-        // Ne pas changer l'état ici, laisser le composant le faire
+        this.isAuthenticatedSubject.next(false);
       }),
       catchError((error: HttpErrorResponse) => {
         console.error('Logout failed:', error);
-        throw error;
+        this.isAuthenticatedSubject.next(false);
+        return throwError(() => error);
       })
     );
   }
@@ -58,7 +56,6 @@ export class AuthService {
   }
 
   checkAuthStatus(): void {
-    // Vérifier l'état d'authentification avec le backend
     this.http.get<any>(`${this.config.apiUrl}/status`).pipe(
       tap((response: any) => {
         const authenticated = response?.authenticated === true;

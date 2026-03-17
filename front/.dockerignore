@@ -1,5 +1,7 @@
 node_modules/
 dist/
+build/
+.angular/
 
 # IDE
 *.iml
@@ -12,3 +14,7 @@ dist/
 # Divers
 README.md
 Dockerfile
+
+# Test files
+**/*.spec.ts
+karma.conf.js
