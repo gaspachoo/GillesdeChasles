@@ -10,7 +10,9 @@ http:
     - name: type
       value: poeme
       type: query
-  auth: inherit
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaWxsZXMtZGUtY2hhc2xlcyIsInN1YiI6ImFkbWluIiwiZXhwIjoxODYwMTU5MjY5LCJpYXQiOjE3NzM3NTkyNjksInNjb3BlIjoiUk9MRV9BRE1JTiBGQUNUT1JfUEFTU1dPUkQifQ.eAvZgHR3PUG9PVGOpOztXPKUxC1odHdow69whR1uq8I
 
 settings:
   encodeUrl: true

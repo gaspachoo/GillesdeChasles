@@ -1,7 +1,7 @@
 info:
   name: publish a content
   type: http
-  seq: 2
+  seq: 3
 
 http:
   method: POST
@@ -13,7 +13,9 @@ http:
         "title" : "Essai numéro 5",
         "type" : "poeme"
       }
-  auth: inherit
+  auth:
+    type: bearer
+    token: ""
 
 settings:
   encodeUrl: true

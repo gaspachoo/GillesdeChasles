@@ -1,7 +1,7 @@
 info:
   name: login
   type: http
-  seq: 1
+  seq: 2
 
 http:
   method: POST
@@ -11,6 +11,8 @@ http:
     data: ""
   auth:
     type: basic
+    username: admin
+    password: admin1234
 
 settings:
   encodeUrl: true

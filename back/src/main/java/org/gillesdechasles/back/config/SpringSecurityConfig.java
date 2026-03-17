@@ -39,16 +39,16 @@ public class SpringSecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
                 .authorizeHttpRequests(auth -> auth
                         // Autorise toutes les requêtes GET sur /api/content/**
-                        .requestMatchers(HttpMethod.GET, "/api/content/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/content/**").permitAll()
                         // Exige le rôle ADMIN pour toute autre méthode sur /api/content/**
-                        .requestMatchers("/api/content/**").hasRole("ADMIN")
+                        .requestMatchers("/content/**").hasAuthority("SCOPE_ROLE_ADMIN")
                         // Toutes les autres requêtes de l'application doivent être authentifiées
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())
+                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
                 .build();
     }
 

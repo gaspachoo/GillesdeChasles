@@ -1,13 +1,11 @@
 info:
   name: patch a content by id
   type: http
-  seq: 4
+  seq: 5
 
 http:
   method: PATCH
   url: "{{base_url}}/content/{{id}}"
-  headers:
-    Authorization: "Bearer {{token}}"
   body:
     type: json
     data: |-
