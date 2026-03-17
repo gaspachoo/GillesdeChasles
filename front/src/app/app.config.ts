@@ -1,9 +1,10 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withFetch, withXsrfConfiguration } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors, withXsrfConfiguration } from '@angular/common/http';
 
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { credentialsInterceptor } from './core/credentials.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -15,7 +16,8 @@ export const appConfig: ApplicationConfig = {
       withXsrfConfiguration({
         cookieName: 'XSRF-TOKEN',
         headerName: 'X-XSRF-TOKEN'
-      })
+      }),
+      withInterceptors([credentialsInterceptor])
     )
   ]
 };
