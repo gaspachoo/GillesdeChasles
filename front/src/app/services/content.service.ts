@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { ConfigService } from '../core/config.service';
 
 export interface ContentDto {
   id: number;
@@ -21,27 +21,25 @@ export interface ContentDto {
   providedIn: 'root'
 })
 export class ContentService {
-  private apiUrl = environment.apiUrl;
-
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private config: ConfigService) { }
 
   getContentTitles(contentType: string): Observable<ContentDto[]> {
-    return this.http.get<ContentDto[]>(`${this.apiUrl}/content/titles?type=${contentType}`);
+    return this.http.get<ContentDto[]>(`${this.config.apiUrl}/content/titles?type=${contentType}`);
   }
 
   getContentById(id: number): Observable<ContentDto> {
-    return this.http.get<ContentDto>(`${this.apiUrl}/content/${id}`);
+    return this.http.get<ContentDto>(`${this.config.apiUrl}/content/${id}`);
   }
 
   createContent(contentDto: ContentDto): Observable<ContentDto> {
-    return this.http.post<ContentDto>(`${this.apiUrl}/content`, contentDto);
+    return this.http.post<ContentDto>(`${this.config.apiUrl}/content`, contentDto);
   }
 
   updateContent(id: number, contentDto: ContentDto): Observable<ContentDto> {
-    return this.http.patch<ContentDto>(`${this.apiUrl}/content/${id}`, contentDto);
+    return this.http.patch<ContentDto>(`${this.config.apiUrl}/content/${id}`, contentDto);
   }
 
   deleteContent(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/content/${id}`);
+    return this.http.delete<void>(`${this.config.apiUrl}/content/${id}`);
   }
 }
