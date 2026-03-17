@@ -1,12 +1,12 @@
 package org.gillesdechasles.back.repository;
 
-import org.gillesdechasles.back.entity.Admin;
+import org.gillesdechasles.back.entity.User;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface AdminRepository extends CrudRepository<Admin, Long> {
-    Optional<Admin> findByUsername(String username);
+public interface UserRepository extends CrudRepository<User, Long> {
+    Optional<User> findByUsername(String username);
 }
