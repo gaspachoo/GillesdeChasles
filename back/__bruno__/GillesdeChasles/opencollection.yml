@@ -17,9 +17,6 @@ config:
 request:
   variables:
     - name: base_url
-      value: http://localhost:8080/api
+      value: http://localhost:8081
 bundled: false
-extensions:
-  ignore:
-    - node_modules
-    - .git
+extensions: {}
