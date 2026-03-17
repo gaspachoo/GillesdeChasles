@@ -101,7 +101,7 @@ jobs:
   # ─── MAIN PUSH : build + push backend (only if changed) ──────────────────
   build-and-push-back:
     if: github.event_name == 'push' && needs.changes.outputs.backend == 'true'
-    needs: changes
+    needs: [changes, build-check-back]
     runs-on: ubuntu-latest
     permissions:
       contents: read
