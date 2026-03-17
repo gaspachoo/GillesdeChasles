@@ -1,6 +1,13 @@
 services:
+  init-data:
+    image: busybox
+    user: root
+    command: chown -R 100:101 /data
+    volumes:
+      - sqlite_data:/data
+
   backend:
-    image: gillesdechasles-back:latest
+    image: ghcr.io/gaspachoo/gillesdechasles-back:latest
     environment:
       CORS_ALLOWED_ORIGIN: ${CORS_ALLOWED_ORIGIN}
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
@@ -8,17 +15,22 @@ services:
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       ADMIN_USERNAME: ${ADMIN_USERNAME}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      API: ${API_PORT}
       JAVA_TOOL_OPTIONS: "-XX:+UseG1GC -XX:MaxRAMPercentage=75.0"
+    ports:
+      - ${API_PORT}:${API_PORT}
     networks:
       - gilles-de-chasles-network
+    volumes:
+      - sqlite_data:/data
     restart: unless-stopped
 
   frontend:
-    image: gillesdechasles-front:latest
+    image: ghcr.io/gaspachoo/gillesdechasles-front:latest
     environment:
       API_URL: ${API_URL}
     ports:
-      - "4200:4200"
+      - "${CLIENT_PORT}:4200"
     depends_on:
       - backend
     networks:

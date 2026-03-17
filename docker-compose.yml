@@ -11,6 +11,7 @@ services:
       ADMIN_USERNAME: ${ADMIN_USERNAME}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       JAVA_TOOL_OPTIONS: "-XX:+UseG1GC -XX:MaxRAMPercentage=75.0"
+      API_PORT: ${API_PORT}
     networks:
       - gilles-de-chasles-network
     restart: unless-stopped
