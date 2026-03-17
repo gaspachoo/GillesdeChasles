@@ -1,10 +1,15 @@
-# Stage 1: Build
 FROM eclipse-temurin:25-jdk-alpine AS builder
 WORKDIR /app
-COPY . .
+
+COPY gradlew settings.gradle build.gradle gradle.properties ./
+COPY gradle ./gradle
+
+RUN chmod +x gradlew && ./gradlew --version
+
+COPY src ./src
+
 RUN chmod +x gradlew && ./gradlew build -x test --no-daemon
 
-# Stage 2: Runtime
 FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
 
