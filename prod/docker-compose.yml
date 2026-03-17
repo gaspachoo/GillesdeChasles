@@ -7,6 +7,7 @@ services:
       - sqlite_data:/data
 
   backend:
+    container_name: gillesdechasles-backend
     image: ghcr.io/gaspachoo/gillesdechasles-back:latest
     environment:
       CORS_ALLOWED_ORIGIN: ${CORS_ALLOWED_ORIGIN}
@@ -15,7 +16,7 @@ services:
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       ADMIN_USERNAME: ${ADMIN_USERNAME}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
-      API: ${API_PORT}
+      API_PORT: ${API_PORT}
       JAVA_TOOL_OPTIONS: "-XX:+UseG1GC -XX:MaxRAMPercentage=75.0"
     ports:
       - ${API_PORT}:${API_PORT}
@@ -26,6 +27,7 @@ services:
     restart: unless-stopped
 
   frontend:
+    container_name: gillesdechasles-frontend
     image: ghcr.io/gaspachoo/gillesdechasles-front:latest
     environment:
       API_URL: ${API_URL}
