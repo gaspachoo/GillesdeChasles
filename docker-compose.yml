@@ -4,6 +4,7 @@ services:
       context: ./back
       dockerfile: Dockerfile
     environment:
+      CORS_ALLOWED_ORIGIN: ${CORS_ALLOWED_ORIGIN}
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
