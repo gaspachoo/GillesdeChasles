@@ -1,8 +1,6 @@
 services:
   backend:
-    build:
-      context: ./back
-      dockerfile: Dockerfile
+    image: gillesdechasles-back:latest
     environment:
       CORS_ALLOWED_ORIGIN: ${CORS_ALLOWED_ORIGIN}
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
@@ -16,9 +14,9 @@ services:
     restart: unless-stopped
 
   frontend:
-    build:
-      context: ./front
-      dockerfile: Dockerfile
+    image: gillesdechasles-front:latest
+    environment:
+      API_URL: ${API_URL}
     ports:
       - "4200:4200"
     depends_on:
