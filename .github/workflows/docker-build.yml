@@ -18,7 +18,7 @@ jobs:
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.2
       - uses: dorny/paths-filter@v4
         id: filter
         with:
@@ -30,21 +30,13 @@ jobs:
               - 'front/**'
               - '.github/workflows/docker-build.yml'
 
-  # ─── PR CHECK : build only, no push (with cache) ────────────────────────
-  build-check:
-    if: github.event_name == 'pull_request'
+  # ─── PR CHECK : build backend (only if changed) ────────────────────────
+  build-check-back:
+    if: github.event_name == 'pull_request' && needs.changes.outputs.backend == 'true'
     needs: changes
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service: [back, front]
-        exclude:
-          - service: back
-            include: ${{ needs.changes.outputs.backend == 'false' }}
-          - service: front
-            include: ${{ needs.changes.outputs.frontend == 'false' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.2
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -52,66 +44,110 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build ${{ matrix.service }} (ARM64 — no push, with cache)
+      - name: Build backend (ARM64 — no push, with cache)
         uses: docker/build-push-action@v5
         with:
-          context: ./${{ matrix.service }}
-          file: ./${{ matrix.service }}/Dockerfile
+          context: ./back
+          file: ./back/Dockerfile
           platforms: linux/arm64
           push: false
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-${{ matrix.service }}:buildcache
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-back:buildcache
           cache-to: type=gha,mode=max
 
-  # ─── MAIN PUSH : build + push (with cache) ──────────────────────────────
-  build-and-push:
-    if: github.event_name == 'push'
+  # ─── PR CHECK : build frontend (only if changed) ────────────────────────
+  build-check-front:
+    if: github.event_name == 'pull_request' && needs.changes.outputs.frontend == 'true'
+    needs: changes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build frontend (ARM64 — no push, with cache)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./front
+          file: ./front/Dockerfile
+          platforms: linux/arm64
+          push: false
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-front:buildcache
+          cache-to: type=gha,mode=max
+
+  # ─── MAIN PUSH : build + push backend (only if changed) ──────────────────
+  build-and-push-back:
+    if: github.event_name == 'push' && needs.changes.outputs.backend == 'true'
     needs: changes
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-    strategy:
-      matrix:
-        include:
-          - service: back
-            changed: ${{ needs.changes.outputs.backend == 'true' }}
-          - service: front
-            changed: ${{ needs.changes.outputs.frontend == 'true' }}
-      fail-fast: false
     steps:
-      - name: Skip if unchanged
-        if: matrix.changed == 'false'
-        run: echo "Skipping ${{ matrix.service }} — no changes"
-
       - uses: actions/checkout@v4
-        if: matrix.changed == 'true'
 
       - name: Set up QEMU
-        if: matrix.changed == 'true'
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        if: matrix.changed == 'true'
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to GHCR
-        if: matrix.changed == 'true'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push ${{ matrix.service }} (ARM64)
-        if: matrix.changed == 'true'
+      - name: Build and push Backend (ARM64)
         uses: docker/build-push-action@v5
         with:
-          context: ./${{ matrix.service }}
-          file: ./${{ matrix.service }}/Dockerfile
+          context: ./back
+          file: ./back/Dockerfile
           platforms: linux/arm64
           push: true
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-${{ matrix.service }}:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-${{ matrix.service }}:buildcache,mode=max
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-back:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-back:buildcache,mode=max
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-${{ matrix.service }}:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-${{ matrix.service }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-back:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-back:${{ github.sha }}
+
+  # ─── MAIN PUSH : build + push frontend (only if changed) ─────────────────
+  build-and-push-front:
+    if: github.event_name == 'push' && needs.changes.outputs.frontend == 'true'
+    needs: changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Frontend (ARM64)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./front
+          file: ./front/Dockerfile
+          platforms: linux/arm64
+          push: true
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-front:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-front:buildcache,mode=max
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-front:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-front:${{ github.sha }}
