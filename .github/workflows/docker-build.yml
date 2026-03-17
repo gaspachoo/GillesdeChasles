@@ -35,6 +35,9 @@ jobs:
     if: github.event_name == 'pull_request' && needs.changes.outputs.backend == 'true'
     needs: changes
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v6.0.2
 
@@ -43,6 +46,13 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build backend (ARM64 — no push, with cache)
         uses: docker/build-push-action@v5
@@ -52,13 +62,16 @@ jobs:
           platforms: linux/arm64
           push: false
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-back:buildcache
-          cache-to: type=gha,mode=max
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-back:buildcache,mode=max
 
   # ─── PR CHECK : build frontend (only if changed) ────────────────────────
   build-check-front:
     if: github.event_name == 'pull_request' && needs.changes.outputs.frontend == 'true'
     needs: changes
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v6.0.2
 
@@ -68,6 +81,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build frontend (ARM64 — no push, with cache)
         uses: docker/build-push-action@v5
         with:
@@ -76,12 +96,12 @@ jobs:
           platforms: linux/arm64
           push: false
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-front:buildcache
-          cache-to: type=gha,mode=max
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-front:buildcache,mode=max
 
   # ─── MAIN PUSH : build + push backend (only if changed) ──────────────────
   build-and-push-back:
     if: github.event_name == 'push' && needs.changes.outputs.backend == 'true'
-    needs: changes
+    needs: [changes, build-check-back]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -118,7 +138,7 @@ jobs:
   # ─── MAIN PUSH : build + push frontend (only if changed) ─────────────────
   build-and-push-front:
     if: github.event_name == 'push' && needs.changes.outputs.frontend == 'true'
-    needs: changes
+    needs: [changes, build-check-front]
     runs-on: ubuntu-latest
     permissions:
       contents: read
