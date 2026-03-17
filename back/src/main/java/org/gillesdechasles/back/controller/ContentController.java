@@ -5,14 +5,13 @@ import org.gillesdechasles.back.dto.ContentDto;
 import org.gillesdechasles.back.service.ContentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @AllArgsConstructor @RestController
-@RequestMapping("api/content")
+@RequestMapping("content")
 public class ContentController {
     private ContentService contentService;
 
@@ -26,7 +25,6 @@ public class ContentController {
     }
 
     @PostMapping()
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ContentDto> createContent(@RequestBody ContentDto contentDto) {
         try {
             ContentDto createdContent = contentService.addContent(contentDto);
@@ -46,7 +44,6 @@ public class ContentController {
     }
 
     @PatchMapping("{id}")
-    @PreAuthorize("isAuthenticated()")
     public ContentDto updateContent(@PathVariable int id, @RequestBody ContentDto contentDto) {
         try {
             return contentService.updateContent(id, contentDto);
@@ -59,7 +56,6 @@ public class ContentController {
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> deleteContent(@PathVariable int id) {
         try {
             contentService.deleteContent(id);
