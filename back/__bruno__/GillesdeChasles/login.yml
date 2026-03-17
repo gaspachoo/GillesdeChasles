@@ -8,11 +8,11 @@ http:
   url: "{{base_url}}/login"
   body:
     type: json
-    data: ""
-  auth:
-    type: basic
-    username: admin
-    password: admin1234
+    data: |-
+      { 
+        "username": "admin",
+        "password": "admin1234"
+      }
 
 settings:
   encodeUrl: true

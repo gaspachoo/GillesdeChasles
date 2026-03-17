@@ -1,6 +1,7 @@
 package org.gillesdechasles.back.config;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
+import org.gillesdechasles.back.service.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -34,12 +35,14 @@ public class SpringSecurityConfig {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
+
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authenticationManager, JWTService jwtService) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/login").permitAll()
                         // Autorise toutes les requêtes GET sur /api/content/**
                         .requestMatchers(HttpMethod.GET, "/content/**").permitAll()
                         // Exige le rôle ADMIN pour toute autre méthode sur /api/content/**
@@ -47,7 +50,7 @@ public class SpringSecurityConfig {
                         // Toutes les autres requêtes de l'application doivent être authentifiées
                         .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults())
+                .addFilter(new JsonAuthenticationFilter(authenticationManager, jwtService))
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
                 .build();
     }
