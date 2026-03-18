@@ -8,7 +8,7 @@ services:
 
   backend:
     container_name: gillesdechasles-backend
-    image: ghcr.io/gaspachoo/gillesdechasles-back:latest
+    image: ghcr.io/gaspachoo/gillesdechasles-back:${TAG}
     environment:
       CORS_ALLOWED_ORIGIN: ${CORS_ALLOWED_ORIGIN}
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
@@ -28,7 +28,7 @@ services:
 
   frontend:
     container_name: gillesdechasles-frontend
-    image: ghcr.io/gaspachoo/gillesdechasles-front:latest
+    image: ghcr.io/gaspachoo/gillesdechasles-front:${TAG}
     environment:
       API_URL: ${API_URL}
     ports:
