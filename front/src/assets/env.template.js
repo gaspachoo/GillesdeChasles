@@ -1,5 +1,0 @@
-(function (window) {
-  window.__env = {
-    apiUrl: '${API_URL}',
-  };
-})(window);

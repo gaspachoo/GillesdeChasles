@@ -42,5 +42,4 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 
-env.js
-
+config.json
