@@ -101,13 +101,14 @@ jobs:
   # ─── MAIN PUSH : build + push backend (only if changed) ──────────────────
   build-and-push-back:
     if: github.event_name == 'push' && needs.changes.outputs.backend == 'true'
-    needs: [changes, build-check-back]
+    # Do not depend on PR-only jobs, otherwise push jobs are skipped on main pushes.
+    needs: changes
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.0
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -138,13 +139,14 @@ jobs:
   # ─── MAIN PUSH : build + push frontend (only if changed) ─────────────────
   build-and-push-front:
     if: github.event_name == 'push' && needs.changes.outputs.frontend == 'true'
-    needs: [changes, build-check-front]
+    # Do not depend on PR-only jobs, otherwise push jobs are skipped on main pushes.
+    needs: changes
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.0
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
