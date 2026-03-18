@@ -16,5 +16,8 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 COPY --from=build /app/dist/front/browser /usr/share/nginx/html
 
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 EXPOSE 4200
 ENTRYPOINT ["/entrypoint.sh"]
