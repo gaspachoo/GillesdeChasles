@@ -128,7 +128,7 @@ jobs:
         with:
           context: ./back
           file: ./back/Dockerfile
-          platforms: linux/arm64
+          platforms: linux/amd64,linux/arm64
           push: true
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-back:buildcache
           cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-back:buildcache,mode=max
@@ -166,7 +166,7 @@ jobs:
         with:
           context: ./front
           file: ./front/Dockerfile
-          platforms: linux/arm64
+          platforms: linux/amd64,linux/arm64
           push: true
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-front:buildcache
           cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gillesdechasles-front:buildcache,mode=max
