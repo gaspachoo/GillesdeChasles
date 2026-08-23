@@ -17,6 +17,6 @@ config:
 request:
   variables:
     - name: base_url
-      value: http://localhost:8081
+      value: http://localhost:5000
 bundled: false
 extensions: {}
