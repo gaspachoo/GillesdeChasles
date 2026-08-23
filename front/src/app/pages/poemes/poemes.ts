@@ -1,9 +1,8 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ContentService, ContentDto } from '../../services/content.service';
 import { AuthService } from '../../services/auth.service';
 import { ContentFormComponent } from '../../components/content-form/content-form';
-import { Subscription } from 'rxjs';
 
 interface PoemeItem {
   id: number;
@@ -19,53 +18,46 @@ interface PoemeItem {
   templateUrl: './poemes.html',
   styleUrl: './poemes.css',
 })
-export class Poemes implements OnInit, OnDestroy {
-  poemes: PoemeItem[] = [];
-  isLoading = true;
-  error: string | null = null;
-  isAuthenticated = false;
-  showForm = false;
-  editingPoeme: ContentDto | undefined;
-  formSubmitting = false;
-  formError = '';
-  private authSubscription?: Subscription;
+export class Poemes implements OnInit {
+  readonly poemes = signal<PoemeItem[]>([]);
+  readonly isLoading = signal(true);
+  readonly error = signal<string | null>(null);
+  readonly showForm = signal(false);
+  readonly editingPoeme = signal<ContentDto | undefined>(undefined);
+  readonly formSubmitting = signal(false);
+  readonly formError = signal('');
+
+  readonly isAuthenticated = signal(false);
+  readonly authLoading = signal(false);
 
   constructor(
-    private contentService: ContentService,
-    private authService: AuthService,
-    private cdr: ChangeDetectorRef
-  ) {}
+    private readonly contentService: ContentService,
+    private readonly authService: AuthService
+  ) {
+    this.isAuthenticated = this.authService.isAuthenticated;
+    this.authLoading = this.authService.isLoading;
+  }
 
   ngOnInit() {
-    this.authSubscription = this.authService.isAuthenticated$.subscribe(
-      (isAuth) => {
-        this.isAuthenticated = isAuth;
-        this.cdr.markForCheck();
-      }
-    );
     this.loadPoemes();
   }
 
-  ngOnDestroy(): void {
-    this.authSubscription?.unsubscribe();
-  }
-
   loadPoemes() {
+    this.isLoading.set(true);
+    this.error.set(null);
     this.contentService.getContentTitles('poeme').subscribe({
       next: (data: ContentDto[]) => {
-        this.poemes = data.map(item => ({
+        this.poemes.set(data.map(item => ({
           id: item.id,
           title: item.title,
           isExpanded: false
-        }));
-        this.isLoading = false;
-        this.cdr.markForCheck();
+        })));
+        this.isLoading.set(false);
       },
       error: (err) => {
         console.error('Erreur lors du chargement des poèmes:', err);
-        this.error = 'Impossible de charger les poèmes. Veuillez réessayer plus tard.';
-        this.isLoading = false;
-        this.cdr.markForCheck();
+        this.error.set('Impossible de charger les poèmes. Veuillez réessayer plus tard.');
+        this.isLoading.set(false);
       }
     });
   }
@@ -79,93 +71,82 @@ export class Poemes implements OnInit, OnDestroy {
         next: (data: ContentDto) => {
           poeme.content = data.contentText;
           poeme.isLoading = false;
-          this.cdr.markForCheck();
-          console.log(poeme.content);
+          this.poemes.set([...this.poemes()]);
         },
         error: (err) => {
           console.error('Erreur lors du chargement du poème:', err);
           poeme.isLoading = false;
           poeme.isExpanded = false;
-          this.cdr.markForCheck();
+          this.poemes.set([...this.poemes()]);
         }
       });
     }
   }
 
   openCreateForm(): void {
-    console.log('openCreateForm called');
-    this.editingPoeme = undefined;
-    this.showForm = true;
-    this.formError = '';
-    console.log('showForm set to:', this.showForm);
-    this.cdr.markForCheck();
+    this.editingPoeme.set(undefined);
+    this.showForm.set(true);
+    this.formError.set('');
   }
 
   openEditForm(poemeId: number): void {
     this.contentService.getContentById(poemeId).subscribe({
       next: (content) => {
-        this.editingPoeme = content;
-        this.showForm = true;
-        this.formError = '';
-        this.cdr.markForCheck();
+        this.editingPoeme.set(content);
+        this.showForm.set(true);
+        this.formError.set('');
       },
       error: (err) => {
         console.error('Erreur lors du chargement du poème:', err);
-        this.formError = 'Impossible de charger le poème pour édition';
-        this.cdr.markForCheck();
+        this.formError.set('Impossible de charger le poème pour édition');
       }
     });
   }
 
   onFormSubmit(content: ContentDto): void {
-    this.formSubmitting = true;
-    this.formError = '';
+    this.formSubmitting.set(true);
+    this.formError.set('');
 
-    const request = this.editingPoeme
-      ? this.contentService.updateContent(this.editingPoeme.id, content)
+    const request = this.editingPoeme()
+      ? this.contentService.updateContent(this.editingPoeme()!.id, content)
       : this.contentService.createContent(content);
 
     request.subscribe({
       next: (response) => {
         console.log('Contenu sauvegardé:', response);
-        this.formSubmitting = false;
-        this.showForm = false;
-        this.editingPoeme = undefined;
-        this.loadPoemes(); // Recharger la liste
-        this.cdr.markForCheck();
+        this.formSubmitting.set(false);
+        this.showForm.set(false);
+        this.editingPoeme.set(undefined);
+        this.loadPoemes();
       },
       error: (err) => {
         console.error('Erreur lors de la sauvegarde:', err);
-        this.formError = err.error?.message || 'Erreur lors de la sauvegarde';
-        this.formSubmitting = false;
-        this.cdr.markForCheck();
+        this.formError.set(err.error?.message || 'Erreur lors de la sauvegarde');
+        this.formSubmitting.set(false);
       }
     });
   }
 
   onFormCancel(): void {
-    this.showForm = false;
-    this.editingPoeme = undefined;
-    this.formError = '';
-    this.cdr.markForCheck();
+    this.showForm.set(false);
+    this.editingPoeme.set(undefined);
+    this.formError.set('');
   }
 
   onDelete(id: number): void {
-    this.formSubmitting = true;
+    this.formSubmitting.set(true);
     this.contentService.deleteContent(id).subscribe({
       next: () => {
         console.log('Contenu supprimé avec succès');
-        this.formSubmitting = false;
-        this.showForm = false;
-        this.editingPoeme = undefined;
-        this.loadPoemes(); // Recharger la liste
-        this.cdr.markForCheck();
+        this.formSubmitting.set(false);
+        this.showForm.set(false);
+        this.editingPoeme.set(undefined);
+        this.loadPoemes();
       },
       error: (err) => {
         console.error('Erreur lors de la suppression:', err);
-        this.formError = err.error?.message || 'Erreur lors de la suppression';
-        this.formSubmitting = false;
-        this.cdr.markForCheck();
+        this.formError.set(err.error?.message || 'Erreur lors de la suppression');
+        this.formSubmitting.set(false);
       }
     });
   }
