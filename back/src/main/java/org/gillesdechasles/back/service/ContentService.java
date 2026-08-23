@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service @AllArgsConstructor
 public class ContentService {
@@ -35,7 +34,7 @@ public class ContentService {
                         Collections.emptySet(),
                         Collections.emptySet()
                 ))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public ContentDto addContent(ContentDto contentDto) {

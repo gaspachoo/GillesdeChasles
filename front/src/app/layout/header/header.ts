@@ -23,7 +23,7 @@ export class Header implements OnInit, OnDestroy {
   isAuthenticated = false;
   private authSubscription?: Subscription;
 
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   ngOnInit(): void {
     this.authService.checkAuthStatus();
@@ -71,7 +71,7 @@ export class Header implements OnInit, OnDestroy {
   }
 
   login(): void {
-    if (!this.loginForm || !this.loginForm.valid) {
+    if (!this.loginForm?.valid) {
       this.loginError = 'Please fill in all fields';
       return;
     }
