@@ -1,6 +1,7 @@
 <header class="header">
 
-    <img class="header__img" src="/assets/images/banniere.png" alt="Banniere Gilles de Chasles">
+    <img class="header__img" ngSrc="/assets/images/banniere2.jpg" alt="Bannière Gilles de Chasles" width="5129"
+         height="3419">
     <div class="header__content">
         <h1 class="header__title">Bienvenue sur Gilles de Chasles!</h1>
         <h2 class="header__subtitle">Poète autrement</h2>
@@ -14,24 +15,30 @@
 
     </div>
 
+  @if(isAuthenticated()) {
     <button
-        *ngIf="!isAuthenticated"
+        class="header__admin-btn header__admin-btn--authenticated"
+        (click)="logout()"
+        [disabled]="isLoading()">
+        {{ isLoading() ? 'Logging out...' : 'Logout' }}
+    </button>
+  } @else {
+    <button
         class="header__admin-btn"
         (click)="openLoginModal()">
         Admin
     </button>
-
-    <button
-        *ngIf="isAuthenticated"
-        class="header__admin-btn header__admin-btn--authenticated"
-        (click)="logout()"
-        [disabled]="isLoading">
-        {{ isLoading ? 'Logging out...' : 'Logout' }}
-    </button>
+  }
 
     <!-- Login Modal -->
-    <div class="login-modal" *ngIf="showLoginModal">
-        <div class="login-modal__overlay" (click)="closeLoginModal()"></div>
+    @if(showLoginModal()) {
+      <div class="login-modal" role="dialog" aria-modal="true">
+        <button
+            class="login-modal__overlay"
+            (click)="closeLoginModal()"
+            (keydown.escape)="closeLoginModal()"
+            aria-label="Close modal">
+        </button>
         <div class="login-modal__content" (click)="$event.stopPropagation()">
             <button class="login-modal__close" (click)="closeLoginModal()">×</button>
             <h2>Admin Login</h2>
@@ -42,7 +49,8 @@
                         type="text"
                         id="username"
                         name="username"
-                        [(ngModel)]="username"
+                        [ngModel]="username()"
+                        (ngModelChange)="username.set($event)"
                         placeholder="Enter username"
                         required
                     >
@@ -53,17 +61,23 @@
                         type="password"
                         id="password"
                         name="password"
-                        [(ngModel)]="password"
+                        [ngModel]="password()"
+                        (ngModelChange)="password.set($event)"
                         placeholder="Enter admin password"
                         required
                     >
                 </div>
-                <div *ngIf="loginSuccess" class="success-message">{{ loginSuccess }}</div>
-                <div *ngIf="loginError" class="error-message">{{ loginError }}</div>
-                <button type="submit" class="login-modal__submit" [disabled]="isLoading">
-                    {{ isLoading ? 'Logging in...' : 'Login' }}
+                @if(loginSuccess()) {
+                  <div class="success-message">{{ loginSuccess() }}</div>
+                }
+                @if(loginError()) {
+                  <div class="error-message">{{ loginError() }}</div>
+                }
+                <button type="submit" class="login-modal__submit" [disabled]="isLoading()">
+                    {{ isLoading() ? 'Logging in...' : 'Login' }}
                 </button>
             </form>
         </div>
     </div>
+    }
 </header>

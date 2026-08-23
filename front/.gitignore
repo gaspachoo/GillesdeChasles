@@ -28,6 +28,15 @@ yarn-error.log
 !.vscode/extensions.json
 .history/*
 
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
 # Miscellaneous
 /.angular/cache
 .sass-cache/

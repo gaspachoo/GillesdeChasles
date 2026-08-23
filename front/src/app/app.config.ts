@@ -1,9 +1,9 @@
 import { ApplicationConfig, inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors, withXsrfConfiguration } from '@angular/common/http';
 
 import { routes } from './app.routes';
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { provideClientHydration, withEventReplay, withNoIncrementalHydration } from '@angular/platform-browser';
 import { credentialsInterceptor } from './core/credentials.interceptor';
 import { ConfigService } from './core/config.service';
 
@@ -11,8 +11,8 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideAppInitializer(() => inject(ConfigService).load()),
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes),
-    provideClientHydration(withEventReplay()),
+    provideRouter(routes, withComponentInputBinding()),
+    provideClientHydration(withEventReplay(), withNoIncrementalHydration()),
     provideHttpClient(
       withFetch(),
       withXsrfConfiguration({

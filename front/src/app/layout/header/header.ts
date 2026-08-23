@@ -1,108 +1,95 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import {CommonModule, NgOptimizedImage} from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterModule, CommonModule, FormsModule],
+  imports: [RouterModule, CommonModule, FormsModule, NgOptimizedImage],
   templateUrl: './header.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './header.css',
 })
-export class Header implements OnInit, OnDestroy {
+export class Header implements OnInit {
   @ViewChild('loginForm') loginForm?: NgForm;
 
-  showLoginModal = false;
-  username = '';
-  password = '';
-  isLoading = false;
-  loginError = '';
-  loginSuccess = '';
-  isAuthenticated = false;
-  private authSubscription?: Subscription;
+  readonly showLoginModal = signal(false);
+  readonly username = signal('');
+  readonly password = signal('');
+  readonly loginError = signal('');
+  readonly loginSuccess = signal('');
 
-  constructor(private authService: AuthService) {}
+  isAuthenticated = signal(false);
+  isLoading = signal(false);
+
+  constructor(private readonly authService: AuthService) {}
 
   ngOnInit(): void {
+    this.isAuthenticated = this.authService.isAuthenticated;
+    this.isLoading = this.authService.isLoading;
     this.authService.checkAuthStatus();
-    this.authSubscription = this.authService.isAuthenticated$.subscribe(
-      (isAuth) => {
-        console.log('isAuthenticated updated:', isAuth);
-        this.isAuthenticated = isAuth;
-
-        // Si authentification réussie, vider le formulaire
-        if (isAuth) {
-          this.resetForm();
-        }
-      }
-    );
-  }
-
-  ngOnDestroy(): void {
-    this.authSubscription?.unsubscribe();
   }
 
   openLoginModal(): void {
-    this.showLoginModal = true;
-    this.loginError = '';
-    this.loginSuccess = '';
-    this.username = '';
-    this.password = '';
+    this.showLoginModal.set(true);
+    this.loginError.set('');
+    this.loginSuccess.set('');
+    this.username.set('');
+    this.password.set('');
     if (this.loginForm) {
       this.loginForm.resetForm();
     }
   }
 
   closeLoginModal(): void {
-    this.showLoginModal = false;
+    this.showLoginModal.set(false);
     this.resetForm();
   }
 
   private resetForm(): void {
-    this.loginError = '';
-    this.loginSuccess = '';
-    this.username = '';
-    this.password = '';
+    this.loginError.set('');
+    this.loginSuccess.set('');
+    this.username.set('');
+    this.password.set('');
     if (this.loginForm) {
       this.loginForm.resetForm();
     }
   }
 
   login(): void {
-    if (!this.loginForm || !this.loginForm.valid) {
-      this.loginError = 'Please fill in all fields';
+    if (!this.loginForm?.valid) {
+      this.loginError.set('Please fill in all fields');
       return;
     }
 
-    if (!this.username.trim()) {
-      this.loginError = 'Username is required';
+    const user = this.username();
+    const pass = this.password();
+
+    if (!user.trim()) {
+      this.loginError.set('Username is required');
       return;
     }
-    if (!this.password.trim()) {
-      this.loginError = 'Password is required';
+    if (!pass.trim()) {
+      this.loginError.set('Password is required');
       return;
     }
 
-    this.isLoading = true;
-    this.loginError = '';
-    this.loginSuccess = '';
+    this.loginError.set('');
+    this.loginSuccess.set('');
 
-    this.authService.login(this.username, this.password).subscribe({
+    this.authService.login(user, pass).subscribe({
       next: (response) => {
         console.log('Login response:', response);
-        this.isLoading = false;
-        this.loginSuccess = 'Login successful!';
+        this.loginSuccess.set('Login successful!');
+        this.resetForm();
 
-        // Fermer la modal après un court délai pour montrer le message
         setTimeout(() => {
           this.closeLoginModal();
         }, 1000);
       },
       error: (error) => {
-        this.isLoading = false;
-        this.loginError = error.error?.message || 'Login failed. Please try again.';
+        this.loginError.set(error.error?.message || 'Login failed. Please try again.');
         console.error('Login error:', error);
       }
     });
@@ -110,15 +97,12 @@ export class Header implements OnInit, OnDestroy {
 
   logout(): void {
     console.log('Logout clicked');
-    this.isLoading = true;
 
     this.authService.logout().subscribe({
       next: () => {
         console.log('Logged out successfully');
-        this.isLoading = false;
       },
       error: (error) => {
-        this.isLoading = false;
         console.error('Logout error:', error);
       }
     });
