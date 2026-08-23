@@ -3,7 +3,7 @@ import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors, withXsrfConfiguration } from '@angular/common/http';
 
 import { routes } from './app.routes';
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { provideClientHydration, withEventReplay, withNoIncrementalHydration } from '@angular/platform-browser';
 import { credentialsInterceptor } from './core/credentials.interceptor';
 import { ConfigService } from './core/config.service';
 
@@ -12,7 +12,7 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => inject(ConfigService).load()),
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes, withComponentInputBinding()),
-    provideClientHydration(withEventReplay()),
+    provideClientHydration(withEventReplay(), withNoIncrementalHydration()),
     provideHttpClient(
       withFetch(),
       withXsrfConfiguration({

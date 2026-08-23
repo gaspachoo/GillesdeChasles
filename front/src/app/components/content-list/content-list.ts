@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, input, signal, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, computed, input, signal, inject, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ContentService, ContentDto } from '../../services/content.service';
@@ -17,6 +17,7 @@ interface ContentItem {
   selector: 'app-content-list',
   imports: [CommonModule, ContentFormComponent],
   templateUrl: './content-list.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './content-list.css',
 })
 export class ContentListComponent implements OnInit {

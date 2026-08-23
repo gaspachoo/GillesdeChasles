@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, signal } from '@angular/core';
+import { Component, OnInit, ViewChild, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import {CommonModule, NgOptimizedImage} from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -8,6 +8,7 @@ import { AuthService } from '../../services/auth.service';
   selector: 'app-header',
   imports: [RouterModule, CommonModule, FormsModule, NgOptimizedImage],
   templateUrl: './header.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './header.css',
 })
 export class Header implements OnInit {

@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-ailleurs',
   imports: [],
   templateUrl: './ailleurs.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './ailleurs.css',
 })
 export class Ailleurs {

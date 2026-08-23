@@ -1,4 +1,4 @@
-import { Component, input, output, signal, effect } from '@angular/core';
+import { Component, input, output, signal, effect, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ContentDto } from '../../services/content.service';
@@ -7,6 +7,7 @@ import { ContentDto } from '../../services/content.service';
   selector: 'app-content-form',
   imports: [CommonModule, FormsModule],
   templateUrl: './content-form.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './content-form.css',
 })
 export class ContentFormComponent {
