@@ -1,0 +1,79 @@
+<div class="content-list-container">
+  <div class="page-header">
+    <h1>{{ contentTitle() }}</h1>
+    @if (isAuthenticated()) {
+      <button class="btn-add" (click)="openCreateForm()" [attr.aria-label]="'Ajouter un ' + contentLabel()">
+        <span aria-hidden="true">+</span>
+        Ajouter
+      </button>
+    }
+  </div>
+
+  <div class="intro-text">
+    <p>{{ introText() }}</p>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <p>Chargement des {{ contentLabelPlural() }}...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="error-state">
+      <p>{{ error() }}</p>
+    </div>
+  }
+
+  @if (!isLoading() && !error()) {
+    <div class="content-items">
+      @for (item of items(); track item.id) {
+        <div class="content-item">
+          <div class="content-header" (click)="toggleItem(item)">
+            <h3 class="content-title">{{ item.title }}</h3>
+            <div class="content-actions">
+              @if (isAuthenticated()) {
+                <button class="btn-edit" (click)="openEditForm(item.id); $event.stopPropagation()"
+                  [attr.aria-label]="'Éditer le ' + contentLabel()">
+                  Éditer
+                </button>
+              }
+              <button class="expand-button" [class.expanded]="item.isExpanded"
+                [attr.aria-label]="'Déplier le ' + contentLabel()">
+                <span aria-hidden="true">⌄</span>
+              </button>
+            </div>
+          </div>
+
+          @if (item.isExpanded) {
+            <div class="content-body">
+              @if (item.isLoading) {
+                <div class="content-loading"><p>Chargement du contenu...</p></div>
+              }
+              @if (!item.isLoading && item.content) {
+                <div class="content-text"><p [innerHTML]="item.content"></p></div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (items().length === 0) {
+        <div class="empty-state">
+          <p>Aucun {{ contentLabel() }} disponible pour le moment.</p>
+        </div>
+      }
+    </div>
+  }
+
+  @if (showForm()) {
+    <app-content-form
+      [contentType]="contentType()"
+      [existingContent]="editingItem()"
+      [isSubmitting]="formSubmitting()"
+      (submissionDto)="onFormSubmit($event)"
+      (cancelSubmission)="onFormCancel()"
+      (deleteSubmission)="onDelete($event)"
+    />
+  }
+</div>

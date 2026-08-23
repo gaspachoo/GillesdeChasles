@@ -1,9 +1,8 @@
 import { Routes } from '@angular/router';
 import { Home } from './pages/home/home';
-import { Poemes } from './pages/poemes/poemes';
-import { Reflexions } from './pages/reflexions/reflexions';
 import { Ailleurs } from './pages/ailleurs/ailleurs';
 import { Vous } from './pages/vous/vous';
+import { ContentListComponent } from './components/content-list/content-list';
 
 export const routes: Routes = [
     {
@@ -12,11 +11,13 @@ export const routes: Routes = [
   },
   {
     path: 'poemes',
-    component: Poemes,
+    component: ContentListComponent,
+    data: { contentType: 'poeme' },
   },
   {
     path: 'reflexions',
-    component: Reflexions,
+    component: ContentListComponent,
+    data: { contentType: 'reflexion' },
   },
   {
     path: 'ailleurs',

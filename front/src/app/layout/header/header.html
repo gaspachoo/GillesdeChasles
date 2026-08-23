@@ -16,16 +16,16 @@
 
   @if(isAuthenticated()) {
     <button
-        class="header__admin-btn"
-        (click)="openLoginModal()">
-        Admin
-    </button>
-  } @else {
-    <button
         class="header__admin-btn header__admin-btn--authenticated"
         (click)="logout()"
         [disabled]="isLoading()">
         {{ isLoading() ? 'Logging out...' : 'Logout' }}
+    </button>
+  } @else {
+    <button
+        class="header__admin-btn"
+        (click)="openLoginModal()">
+        Admin
     </button>
   }
 
