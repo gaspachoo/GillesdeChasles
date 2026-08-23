@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, input, output, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ContentDto } from '../../services/content.service';
@@ -9,76 +9,82 @@ import { ContentDto } from '../../services/content.service';
   templateUrl: './content-form.html',
   styleUrl: './content-form.css',
 })
-export class ContentFormComponent implements OnInit {
-  @Input() contentType: 'poeme' | 'reflexion' = 'poeme';
-  @Input() existingContent?: ContentDto;
-  @Input() isSubmitting = false;
-  @Output() onSubmit = new EventEmitter<ContentDto>();
-  @Output() onCancel = new EventEmitter<void>();
-  @Output() onDelete = new EventEmitter<number>();
+export class ContentFormComponent {
+  contentType = input<'poeme' | 'reflexion'>('poeme');
+  existingContent = input<ContentDto | undefined>();
+  isSubmitting = input(false);
 
-  title = '';
-  contentText = '';
-  errorMessage = '';
-  showDeleteConfirm = false;
+  submissionDto = output<ContentDto>();
+  cancelSubmission = output<void>();
+  deleteSubmission = output<number>();
 
-  ngOnInit(): void {
-    if (this.existingContent) {
-      this.title = this.existingContent.title || '';
-      this.contentText = this.existingContent.contentText || '';
-    }
+  title = signal('');
+  contentText = signal('');
+  errorMessage = signal('');
+  showDeleteConfirm = signal(false);
+
+  constructor() {
+    effect(() => {
+      const existing = this.existingContent();
+      if (existing) {
+        this.title.set(existing.title || '');
+        this.contentText.set(existing.contentText || '');
+      }
+    });
   }
 
   submitForm(): void {
-    if (!this.title.trim()) {
-      this.errorMessage = 'Le titre est requis';
+    if (!this.title().trim()) {
+      this.errorMessage.set('Le titre est requis');
       return;
     }
 
-    if (!this.contentText.trim()) {
-      this.errorMessage = 'Le contenu est requis';
+    if (!this.contentText().trim()) {
+      this.errorMessage.set('Le contenu est requis');
       return;
     }
 
+    const existing = this.existingContent();
     const contentDto: ContentDto = {
-      id: this.existingContent?.id || 0,
-      title: this.title,
-      type: this.contentType === 'poeme' ? 'POEME' : 'REFLEXION',
-      contentText: this.contentText,
-      publishedAt: this.existingContent?.publishedAt || new Date().toISOString(),
-      image: this.existingContent?.image || null,
-      video: this.existingContent?.video || null,
-      themes: this.existingContent?.themes || [],
-      tags: this.existingContent?.tags || [],
-      recommendations: this.existingContent?.recommendations || [],
-      recommendedBy: this.existingContent?.recommendedBy || []
+      id: existing?.id || 0,
+      title: this.title(),
+      type: this.contentType() === 'poeme' ? 'POEME' : 'REFLEXION',
+      contentText: this.contentText(),
+      publishedAt: existing?.publishedAt || new Date().toISOString(),
+      image: existing?.image || null,
+      video: existing?.video || null,
+      themes: existing?.themes || [],
+      tags: existing?.tags || [],
+      recommendations: existing?.recommendations || [],
+      recommendedBy: existing?.recommendedBy || []
     };
 
-    this.errorMessage = '';
-    this.onSubmit.emit(contentDto);
+    this.errorMessage.set('');
+    this.submissionDto.emit(contentDto);
   }
 
   cancelForm(): void {
-    this.onCancel.emit();
+    this.cancelSubmission.emit();
   }
 
   resetForm(): void {
-    this.title = '';
-    this.contentText = '';
-    this.errorMessage = '';
+    this.title.set('');
+    this.contentText.set('');
+    this.errorMessage.set('');
   }
 
   showDeleteConfirmation(): void {
-    this.showDeleteConfirm = true;
+    this.showDeleteConfirm.set(true);
   }
 
   cancelDelete(): void {
-    this.showDeleteConfirm = false;
+    this.showDeleteConfirm.set(false);
   }
 
   confirmDelete(): void {
-    if (this.existingContent?.id) {
-      this.onDelete.emit(this.existingContent.id);
+    const existing = this.existingContent();
+    if (existing?.id) {
+      this.deleteSubmission.emit(existing.id);
     }
   }
 }

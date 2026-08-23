@@ -86,9 +86,9 @@
       [contentType]="'poeme'"
       [existingContent]="editingPoeme"
       [isSubmitting]="formSubmitting"
-      (onSubmit)="onFormSubmit($event)"
-      (onCancel)="onFormCancel()"
-      (onDelete)="onDelete($event)"
+      (submissionDto)="onFormSubmit($event)"
+      (cancelSubmission)="onFormCancel()"
+      (deleteSubmission)="onDelete($event)"
     ></app-content-form>
   }
 </div>
