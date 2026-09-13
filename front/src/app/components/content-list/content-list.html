@@ -51,7 +51,10 @@
                 <div class="content-loading"><p>Chargement du contenu...</p></div>
               }
               @if (!item.isLoading && item.content) {
-                <div class="content-text"><p [innerHTML]="item.content"></p></div>
+                <div class="content-text">
+                  <p [innerHTML]="item.content"></p>
+                </div>
+                <p class="content-date">Publié le {{ item.publishedAt | date:'EEEE d MMMM y' }}</p>
               }
             </div>
           }

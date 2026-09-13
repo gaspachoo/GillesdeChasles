@@ -11,6 +11,7 @@ interface ContentItem {
   isExpanded: boolean;
   content?: string;
   isLoading?: boolean;
+  publishedAt?: string;
 }
 
 @Component({
@@ -115,46 +116,49 @@ export class ContentListComponent implements OnInit {
       });
   }
 
+  private updateItem(itemId: number, patch: Partial<ContentItem>) {
+    this.items.update(items =>
+      items.map(item =>
+        item.id === itemId ? { ...item, ...patch } : item
+      )
+    );
+  }
+
   /**
    * Bascule l'expansion/repliage d'un item et charge le contenu si nécessaire
    */
   toggleItem(item: ContentItem) {
-    // Mettre à jour l'état d'expansion
-    const updatedItems = this.items().map(i =>
-      i.id === item.id ? { ...i, isExpanded: !i.isExpanded } : i
-    );
-    this.items.set(updatedItems);
+    const isOpening = !item.isExpanded;
 
-    // Charger le contenu si l'item est expansé et que le contenu n'est pas encore chargé
-    const expandedItem = updatedItems.find(i => i.id === item.id)!;
-    if (expandedItem.isExpanded && !expandedItem.content) {
-      // Marquer comme en cours de chargement
-      this.items.set(
-        this.items().map(i =>
-          i.id === item.id ? { ...i, isLoading: true } : i
-        )
-      );
+    this.updateItem(item.id, { isExpanded: isOpening });
 
-      this.loadItemContent(
-        item.id,
-        (data: ContentDto) => {
-          this.items.set(
-            this.items().map(i =>
-              i.id === item.id
-                ? { ...i, content: data.contentText, isLoading: false }
-                : i
-            )
-          );
-        },
-        () => {
-          this.items.set(
-            this.items().map(i =>
-              i.id === item.id ? { ...i, isExpanded: false, isLoading: false } : i
-            )
-          );
-        }
-      );
+    if (!isOpening) {
+      return;
     }
+
+    const currentItem = this.items().find(i => i.id === item.id);
+    if (currentItem?.content) {
+      return;
+    }
+
+    this.updateItem(item.id, { isLoading: true });
+
+    this.loadItemContent(
+      item.id,
+      (data: ContentDto) => {
+        this.updateItem(item.id, {
+          content: data.contentText,
+          publishedAt: data.publishedAt,
+          isLoading: false,
+        });
+      },
+      () => {
+        this.updateItem(item.id, {
+          isExpanded: false,
+          isLoading: false,
+        });
+      }
+    );
   }
 
   /**
