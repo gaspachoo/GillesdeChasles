@@ -60,6 +60,7 @@ h1 {
 }
 
 .content-item {
+  width: 100%;
   overflow: hidden;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
@@ -80,9 +81,11 @@ h1 {
 
 .content-title {
   flex: 1;
+  min-width: 0;
   margin: 0;
   color: #2c3e50;
   font-size: 1.5rem;
+  overflow-wrap: anywhere;
 }
 
 .content-actions {
@@ -107,6 +110,8 @@ h1 {
 }
 
 .content-body {
+  width: 100%;
+  box-sizing: border-box;
   padding: 1.5rem;
   border-top: 1px solid #e0e0e0;
   background: #fafafa;
@@ -130,6 +135,7 @@ h1 {
   font-size: 1.05rem;
   line-height: 1.8;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .content-text p {

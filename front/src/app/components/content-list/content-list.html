@@ -1,6 +1,5 @@
 <div class="content-list-container">
-  <div class="page-header">
-    <h1>{{ contentTitle() }}</h1>
+  <div class="page-header"><h1>{{ contentTitle() }}</h1>
     @if (isAuthenticated()) {
       <button class="btn-add" (click)="openCreateForm()" [attr.aria-label]="'Ajouter un ' + contentLabel()">
         <span aria-hidden="true">+</span>
